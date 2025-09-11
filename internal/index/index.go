@@ -36,6 +36,71 @@ type Index struct {
 func New(ctx context.Context, workspaceRoot string) (*Index, error) {
 	db, err := chromem.NewPersistentDB(".sourcerer/db", false)
 	if err != nil {
+	    return nil, fmt.Errorf("failed to create vector db: %w", err)
+	}
+
+	var collection *chromem.Collection
+	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+
+	if openaiAPIKey != "" {
+	    // Use OpenAI embeddings (existing functionality)
+	    collection, err = db.GetOrCreateCollection("code-chunks", nil, nil)
+	} else {
+	    // Check if we can use local Ollama embeddings
+	    ollamaEndpoint := os.Getenv("OLLAMA_ENDPOINT")
+	    if ollamaEndpoint == "" {
+	        ollamaEndpoint = "http://localhost:11434/api" // default
+	    }
+
+	    ollamaModel := os.Getenv("OLLAMA_MODEL")
+	    if ollamaModel == "" {
+	        ollamaModel = "nomic-embed-text" // default
+	    }
+
+	    // No OpenAI key found - inform user about Ollama setup
+	    if os.Getenv("OLLAMA_ENDPOINT") == "" || os.Getenv("OLLAMA_MODEL") == "" {
+            fmt.Printf("No OPENAI_API_KEY found. Using local Ollama embeddings with defaults:\n")
+            fmt.Printf("  Endpoint: %s\n", ollamaEndpoint)
+            fmt.Printf("  Model: %s\n", ollamaModel)
+            fmt.Printf("Ensure Ollama is running with the embedding model installed.\n")
+            fmt.Printf("To customize: set OLLAMA_ENDPOINT and/or OLLAMA_MODEL environment variables.\n")
+            fmt.Printf("Example:\n")
+            fmt.Printf("  export OLLAMA_ENDPOINT=http://127.0.0.1:11434\n")
+            fmt.Printf("  export OLLAMA_MODEL=nomic-embed-text\n\n")
+	    }
+
+	    collection, err = db.GetOrCreateCollection( "code-chunks", nil, 
+	    	chromem.NewEmbeddingFuncOllama(ollamaModel, ollamaEndpoint) )
+
+	    // Provide specific error context for Ollama connection issues
+	    if err != nil {
+            return nil, fmt.Errorf("failed to create vector db collection with Ollama embeddings (endpoint: %s, model: %s): %w\n"+
+                "Ensure Ollama is running and the model is installed:\n"+
+                "  ollama pull %s\n"+
+                "Or set OPENAI_API_KEY to use OpenAI embeddings instead",
+                ollamaEndpoint, ollamaModel, err, ollamaModel)
+	    }
+	}
+	
+        if err != nil {
+           return nil, fmt.Errorf("failed to create vector db collection: %w", err)
+	}
+
+	idx := &Index{
+		workspaceRoot: workspaceRoot,
+		collection:    collection,
+		cache:         map[string][]*ChunkMetadata{},
+	}
+
+	idx.loadCache(ctx)
+
+	return idx, nil
+}
+
+/*
+func New(ctx context.Context, workspaceRoot string) (*Index, error) {
+	db, err := chromem.NewPersistentDB(".sourcerer/db", false)
+	if err != nil {
 		return nil, fmt.Errorf("failed to create vector db: %w", err)
 	}
 
@@ -54,6 +119,7 @@ func New(ctx context.Context, workspaceRoot string) (*Index, error) {
 
 	return idx, nil
 }
+*/
 
 func (idx *Index) loadCache(ctx context.Context) {
 	idx.cacheMu.Lock()
