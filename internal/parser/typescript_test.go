@@ -174,6 +174,37 @@ function myFunc(x: number): string;`,
 			startLine: 64,
 			endLine:   65,
 		},
+		{
+			name:    "Exported Function",
+			path:    "exportedFunction",
+			summary: "function exportedFunction(input: string): boolean {",
+			source: `// Exported functions
+export function exportedFunction(input: string): boolean {
+    return input.length > 0;
+}`,
+			startLine: 67,
+			endLine:   70,
+		},
+		{
+			name:    "Async Exported Function",
+			path:    "asyncExportedFunction",
+			summary: "async function asyncExportedFunction(data: any): Promise<void> {",
+			source: `export async function asyncExportedFunction(data: any): Promise<void> {
+    await Promise.resolve(data);
+}`,
+			startLine: 72,
+			endLine:   74,
+		},
+		{
+			name:    "Exported Default Function",
+			path:    "defaultExportedFunction",
+			summary: "function defaultExportedFunction(): string {",
+			source: `export default function defaultExportedFunction(): string {
+    return "default";
+}`,
+			startLine: 76,
+			endLine:   78,
+		},
 	}
 
 	for _, test := range tests {
@@ -359,6 +390,332 @@ class BugReport {
 			startLine: 96,
 			endLine:   106,
 		},
+		{
+			name:    "Exported Class",
+			path:    "ExportedClass",
+			summary: "class ExportedClass {",
+			source: `// Exported classes
+export class ExportedClass {
+    private value: number;
+
+    constructor(value: number) {
+        this.value = value;
+    }
+
+    getValue(): number {
+        return this.value;
+    }
+}`,
+			startLine: 108,
+			endLine:   119,
+		},
+		{
+			name:    "Exported OpenRouterProvider",
+			path:    "OpenRouterProvider",
+			summary: "class OpenRouterProvider implements Processable {",
+			source: `export class OpenRouterProvider implements Processable {
+    name = "OpenRouter";
+
+    process(): void {
+        console.log("processing");
+    }
+}`,
+			startLine: 121,
+			endLine:   127,
+		},
+		{
+			name:    "Exported Default Class",
+			path:    "TutorPlugin",
+			summary: "class TutorPlugin {",
+			source: `export default class TutorPlugin {
+    private config: any;
+
+    constructor(config: any) {
+        this.config = config;
+    }
+}`,
+			startLine: 129,
+			endLine:   135,
+		},
+		// ClassWithMethods members
+		{
+			name:      "ClassWithMethods::value",
+			path:      "ClassWithMethods::value",
+			summary:   "private value: number",
+			source:    "private value: number",
+			startLine: 9,
+			endLine:   9,
+		},
+		{
+			name:    "ClassWithMethods::constructor",
+			path:    "ClassWithMethods::constructor",
+			summary: "constructor(value: number) {",
+			source: `constructor(value: number) {
+        this.value = value;
+    }`,
+			startLine: 11,
+			endLine:   13,
+		},
+		{
+			name:    "ClassWithMethods::getValue",
+			path:    "ClassWithMethods::getValue",
+			summary: "getValue(): number {",
+			source: `// Instance method with return type
+    getValue(): number {
+        return this.value;
+    }`,
+			startLine: 15,
+			endLine:   18,
+		},
+		{
+			name:    "ClassWithMethods::setValue",
+			path:    "ClassWithMethods::setValue",
+			summary: "setValue(newValue: number): void {",
+			source: `// Setter method with typed parameter
+    setValue(newValue: number): void {
+        this.value = newValue;
+    }`,
+			startLine: 20,
+			endLine:   23,
+		},
+		{
+			name:    "ClassWithMethods::createDefault",
+			path:    "ClassWithMethods::createDefault",
+			summary: "static createDefault(): ClassWithMethods {",
+			source: `// Static method with return type
+    static createDefault(): ClassWithMethods {
+        return new ClassWithMethods(0);
+    }`,
+			startLine: 25,
+			endLine:   28,
+		},
+		{
+			name:    "ClassWithMethods::displayValue getter",
+			path:    "ClassWithMethods::displayValue",
+			summary: "get displayValue(): string {",
+			source: `// Getter method with return type
+    get displayValue(): string {
+        return ` + "`Value: ${this.value}`" + `;
+    }`,
+			startLine: 30,
+			endLine:   33,
+		},
+		{
+			name:    "ClassWithMethods::displayValue setter",
+			path:    "ClassWithMethods::displayValue-2",
+			summary: "set displayValue(val: string) {",
+			source: `// Setter property
+    set displayValue(val: string) {
+        const match = val.match(/Value: (\d+)/);
+        if (match) {
+            this.value = parseInt(match[1]);
+        }
+    }`,
+			startLine: 35,
+			endLine:   41,
+		},
+		// ExtendedClass members
+		{
+			name:      "ExtendedClass::name",
+			path:      "ExtendedClass::name",
+			summary:   "private name: T",
+			source:    "private name: T",
+			startLine: 46,
+			endLine:   46,
+		},
+		{
+			name:    "ExtendedClass::constructor",
+			path:    "ExtendedClass::constructor",
+			summary: "constructor(value: number, name: T) {",
+			source: `constructor(value: number, name: T) {
+        super(value);
+        this.name = name;
+    }`,
+			startLine: 48,
+			endLine:   51,
+		},
+		{
+			name:    "ExtendedClass::getValue",
+			path:    "ExtendedClass::getValue",
+			summary: "getValue(): string {",
+			source: `// Override parent method with different return type
+    getValue(): string {
+        return ` + "`${this.name}: ${super.getValue()}`" + `;
+    }`,
+			startLine: 53,
+			endLine:   56,
+		},
+		{
+			name:    "ExtendedClass::getName",
+			path:    "ExtendedClass::getName",
+			summary: "getName(): T {",
+			source: `// New method with generic return
+    getName(): T {
+        return this.name;
+    }`,
+			startLine: 58,
+			endLine:   61,
+		},
+		// AbstractClass members
+		{
+			name:      "AbstractClass::process",
+			path:      "AbstractClass::process",
+			summary:   "protected abstract process(): void",
+			source:    "protected abstract process(): void",
+			startLine: 66,
+			endLine:   66,
+		},
+		{
+			name:    "AbstractClass::execute",
+			path:    "AbstractClass::execute",
+			summary: "public execute(): void {",
+			source: `public execute(): void {
+        this.process();
+    }`,
+			startLine: 68,
+			endLine:   70,
+		},
+		// ImplementedClass members
+		{
+			name:    "ImplementedClass::process",
+			path:    "ImplementedClass::process",
+			summary: "process(): void {",
+			source: `process(): void {
+        console.log("processing");
+    }`,
+			startLine: 79,
+			endLine:   81,
+		},
+		// ConfigClass members
+		{
+			name:      "ConfigClass::id",
+			path:      "ConfigClass::id",
+			summary:   "readonly id: string",
+			source:    "readonly id: string",
+			startLine: 86,
+			endLine:   86,
+		},
+		{
+			name:      "ConfigClass::name",
+			path:      "ConfigClass::name",
+			summary:   "name?: string",
+			source:    "name?: string",
+			startLine: 87,
+			endLine:   87,
+		},
+		{
+			name:      "ConfigClass::_config",
+			path:      "ConfigClass::_config",
+			summary:   "private _config: Record<string, any> = {}",
+			source:    "private _config: Record<string, any> = {}",
+			startLine: 88,
+			endLine:   88,
+		},
+		{
+			name:    "ConfigClass::constructor",
+			path:    "ConfigClass::constructor",
+			summary: "constructor(id: string, name?: string) {",
+			source: `constructor(id: string, name?: string) {
+        this.id = id;
+        this.name = name;
+    }`,
+			startLine: 90,
+			endLine:   93,
+		},
+		// BugReport members
+		{
+			name:      "BugReport::type",
+			path:      "BugReport::type",
+			summary:   "type = \"report\"",
+			source:    `type = "report"`,
+			startLine: 100,
+			endLine:   100,
+		},
+		{
+			name:      "BugReport::title",
+			path:      "BugReport::title",
+			summary:   "title: string",
+			source:    "title: string",
+			startLine: 101,
+			endLine:   101,
+		},
+		{
+			name:    "BugReport::constructor",
+			path:    "BugReport::constructor",
+			summary: "constructor(t: string) {",
+			source: `constructor(t: string) {
+    this.title = t;
+  }`,
+			startLine: 103,
+			endLine:   105,
+		},
+		// ExportedClass members
+		{
+			name:      "ExportedClass::value",
+			path:      "ExportedClass::value",
+			summary:   "private value: number",
+			source:    "private value: number",
+			startLine: 110,
+			endLine:   110,
+		},
+		{
+			name:    "ExportedClass::constructor",
+			path:    "ExportedClass::constructor",
+			summary: "constructor(value: number) {",
+			source: `constructor(value: number) {
+        this.value = value;
+    }`,
+			startLine: 112,
+			endLine:   114,
+		},
+		{
+			name:    "ExportedClass::getValue",
+			path:    "ExportedClass::getValue",
+			summary: "getValue(): number {",
+			source: `getValue(): number {
+        return this.value;
+    }`,
+			startLine: 116,
+			endLine:   118,
+		},
+		// OpenRouterProvider members
+		{
+			name:      "OpenRouterProvider::name",
+			path:      "OpenRouterProvider::name",
+			summary:   "name = \"OpenRouter\"",
+			source:    `name = "OpenRouter"`,
+			startLine: 122,
+			endLine:   122,
+		},
+		{
+			name:    "OpenRouterProvider::process",
+			path:    "OpenRouterProvider::process",
+			summary: "process(): void {",
+			source: `process(): void {
+        console.log("processing");
+    }`,
+			startLine: 124,
+			endLine:   126,
+		},
+		// TutorPlugin members
+		{
+			name:      "TutorPlugin::config",
+			path:      "TutorPlugin::config",
+			summary:   "private config: any",
+			source:    "private config: any",
+			startLine: 130,
+			endLine:   130,
+		},
+		{
+			name:    "TutorPlugin::constructor",
+			path:    "TutorPlugin::constructor",
+			summary: "constructor(config: any) {",
+			source: `constructor(config: any) {
+        this.config = config;
+    }`,
+			startLine: 132,
+			endLine:   134,
+		},
 	}
 
 	for _, test := range tests {
@@ -522,6 +879,29 @@ interface MergedInterface {
 }`,
 			startLine: 65,
 			endLine:   67,
+		},
+		{
+			name:    "Exported Interface",
+			path:    "ExportedInterface",
+			summary: "interface ExportedInterface {",
+			source: `// Exported interfaces
+export interface ExportedInterface {
+    id: string;
+    process(): void;
+}`,
+			startLine: 69,
+			endLine:   73,
+		},
+		{
+			name:    "Exported LLMProvider",
+			path:    "LLMProvider",
+			summary: "interface LLMProvider {",
+			source: `export interface LLMProvider {
+    name: string;
+    generate(prompt: string): Promise<string>;
+}`,
+			startLine: 75,
+			endLine:   78,
 		},
 	}
 
@@ -723,6 +1103,26 @@ type ConstrainedType<T extends Record<string, any>> = {
 			startLine: 61,
 			endLine:   65,
 		},
+		{
+			name:    "Exported Type",
+			path:    "ExportedType",
+			summary: "type ExportedType = string | number;",
+			source: `// Exported types
+export type ExportedType = string | number;`,
+			startLine: 67,
+			endLine:   68,
+		},
+		{
+			name:    "Exported ConfigOptions",
+			path:    "ConfigOptions",
+			summary: "type ConfigOptions = {",
+			source: `export type ConfigOptions = {
+    enabled: boolean;
+    timeout: number;
+};`,
+			startLine: 70,
+			endLine:   73,
+		},
 	}
 
 	for _, test := range tests {
@@ -864,6 +1264,31 @@ namespace EnumNamespace {
 }`,
 			startLine: 57,
 			endLine:   63,
+		},
+		{
+			name:    "Exported Enum",
+			path:    "ExportedEnum",
+			summary: "enum ExportedEnum {",
+			source: `// Exported enums
+export enum ExportedEnum {
+    Alpha = "alpha",
+    Beta = "beta",
+    Gamma = "gamma"
+}`,
+			startLine: 65,
+			endLine:   70,
+		},
+		{
+			name:    "Exported Status",
+			path:    "Status",
+			summary: "enum Status {",
+			source: `export enum Status {
+    Pending = "pending",
+    Active = "active",
+    Complete = "complete"
+}`,
+			startLine: 72,
+			endLine:   76,
 		},
 	}
 
@@ -1439,6 +1864,31 @@ const readonly_array = [1, 2, 3] as const;`,
 			source:    `declare var jQuery: any;`,
 			startLine: 67,
 			endLine:   67,
+		},
+		{
+			name:    "Exported Const",
+			path:    "EXPORTED_CONST",
+			summary: `const EXPORTED_CONST = "constant value";`,
+			source: `// Exported variables
+export const EXPORTED_CONST = "constant value";`,
+			startLine: 69,
+			endLine:   70,
+		},
+		{
+			name:      "Exported VIEW_TYPE_REVIEW",
+			path:      "VIEW_TYPE_REVIEW",
+			summary:   `const VIEW_TYPE_REVIEW = "tutor-review";`,
+			source:    `export const VIEW_TYPE_REVIEW = "tutor-review";`,
+			startLine: 72,
+			endLine:   72,
+		},
+		{
+			name:      "Exported Let",
+			path:      "exportedLet",
+			summary:   `let exportedLet: number = 42;`,
+			source:    `export let exportedLet: number = 42;`,
+			startLine: 74,
+			endLine:   74,
 		},
 	}
 
