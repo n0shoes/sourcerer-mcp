@@ -8,9 +8,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/mark3labs/mcp-go v0.43.0
-	//github.com/philippgille/chromem-go v0.7.1-0.20251010091601-f63964a64bf6
-	//github.com/philippgille/chromem-go v0.7.1-0.20250720180857-4e5d21d5b8ce
-	github.com/n0shoes/chromem-go v0.0.0-20250911075958-6e0d3a3b4216
+	github.com/philippgille/chromem-go v0.7.1-0.20251010091601-f63964a64bf6
 	github.com/stretchr/testify v1.10.0
 	github.com/tree-sitter-grammars/tree-sitter-markdown v0.5.1
 	github.com/tree-sitter/go-tree-sitter v0.25.0

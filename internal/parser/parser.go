@@ -26,6 +26,7 @@ const (
 	FileTypeTests  FileType = "tests"
 	FileTypeDocs   FileType = "docs"
 	FileTypeIgnore FileType = "ignore"
+	FileTypeMemory FileType = "memory"
 )
 
 // File represents a parsed source file with its extracted semantic chunks

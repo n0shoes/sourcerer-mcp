@@ -42,6 +42,7 @@ func New(ctx context.Context, workspaceRoot string) (*Index, error) {
 	    // Use OpenAI embeddings (existing functionality)
 	    collection, err = db.GetOrCreateCollection("code-chunks", nil, nil)
 	} else {
+	    
 	    // Check if we can use local Ollama embeddings
 	    ollamaEndpoint := os.Getenv("OLLAMA_ENDPOINT")
 	    if ollamaEndpoint == "" {
@@ -65,8 +66,8 @@ func New(ctx context.Context, workspaceRoot string) (*Index, error) {
             fmt.Printf("  export OLLAMA_MODEL=nomic-embed-text\n\n")
 	    }
 
-	    collection, err = db.GetOrCreateCollection( "code-chunks", nil, 
-	    	chromem.NewEmbeddingFuncOllama(ollamaModel, ollamaEndpoint) )
+		 collection, err = db.GetOrCreateCollection( "code-chunks", nil, 
+	    chromem.NewEmbeddingFuncOllama(ollamaModel, ollamaEndpoint) )
 
 	    // Provide specific error context for Ollama connection issues
 	    if err != nil {
@@ -86,7 +87,8 @@ func New(ctx context.Context, workspaceRoot string) (*Index, error) {
 	idx := &Index{
 		workspaceRoot: workspaceRoot,
 		collection:    collection,
-		cache:         map[string][]*ChunkMetadata{},
+		//cache:         map[string][]*ChunkMetadata{},
+		cache:         map[string]int64{},
 	}
 
 	idx.loadCache(ctx)
@@ -104,7 +106,26 @@ func (idx *Index) ensureInitialized(ctx context.Context) error {
 			return
 		}
 
-		collection, err := db.GetOrCreateCollection("code-chunks", nil, nil)
+		// ADD THE SAME OLLAMA LOGIC HERE
+		var collection *chromem.Collection
+		openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+
+		if openaiAPIKey != "" {
+			collection, err = db.GetOrCreateCollection("code-chunks", nil, nil)
+		} else {
+			ollamaEndpoint := os.Getenv("OLLAMA_ENDPOINT")
+			if ollamaEndpoint == "" {
+				ollamaEndpoint = "http://localhost:11434/api"
+			}
+			ollamaModel := os.Getenv("OLLAMA_MODEL")
+			if ollamaModel == "" {
+				ollamaModel = "nomic-embed-text"
+			}
+			collection, err = db.GetOrCreateCollection("code-chunks", nil, 
+				chromem.NewEmbeddingFuncOllama(ollamaModel, ollamaEndpoint))
+		}
+
+		//collection, err := db.GetOrCreateCollection("code-chunks", nil, nil)
 		if err != nil {
 			idx.initErr = fmt.Errorf("failed to create vector db collection: %w", err)
 			return
