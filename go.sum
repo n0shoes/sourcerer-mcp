@@ -42,6 +42,8 @@ github.com/mark3labs/mcp-go v0.43.0 h1:lgiKcWMddh4sngbU+hoWOZ9iAe/qp/m851RQpj3Y7
 github.com/mark3labs/mcp-go v0.43.0/go.mod h1:YnJfOL382MIWDx1kMY+2zsRHU/q78dBg9aFb8W6Thdw=
 github.com/mattn/go-pointer v0.0.1 h1:n+XhsuGeVO6MEAp7xyEukFINEa+Quek5psIR/ylA6o0=
 github.com/mattn/go-pointer v0.0.1/go.mod h1:2zXcozF6qYGgmsG+SeTZz3oAbFLdD3OWqnUbNvJZAlc=
+github.com/n0shoes/chromem-go v0.0.0-20250911075958-6e0d3a3b4216 h1:7b42P8zqegRyD1ARHxNFAlEq46Pu0SzsCExn5LJS/Qc=
+github.com/n0shoes/chromem-go v0.0.0-20250911075958-6e0d3a3b4216/go.mod h1:hTd+wGEm/fFPQl7ilfCwQXkgEUxceYh86iIdoKMolPo=
 github.com/philippgille/chromem-go v0.7.1-0.20250720180857-4e5d21d5b8ce h1:lDoC8Xfvu7uEKTiBCUD0zWmLFSEiLKiZQVVwiG3C5z8=
 github.com/philippgille/chromem-go v0.7.1-0.20250720180857-4e5d21d5b8ce/go.mod h1:hTd+wGEm/fFPQl7ilfCwQXkgEUxceYh86iIdoKMolPo=
 github.com/philippgille/chromem-go v0.7.1-0.20251010091601-f63964a64bf6 h1:8lxVJJJN/W0OatPaoDCMZEWkILPIBCREYvRXHJ9jztg=

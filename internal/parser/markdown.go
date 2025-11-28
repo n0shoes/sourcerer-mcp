@@ -22,8 +22,11 @@ var MarkdownSpec = &LanguageSpec{
 		"pipe_table",
 		"thematic_break",
 	},
+	//new memory types (SE)
 	FileTypeRules: []FileTypeRule{
 		{Pattern: "**/*.md", Type: FileTypeDocs},
+		{Pattern: "**/MEMORY.md", Type: FileTypeMemory},
+        {Pattern: "**/decisions.md", Type: FileTypeMemory},
 	},
 }
 
