@@ -1,6 +1,5 @@
 
 This fork is for using with local ollama (no openai) and focuses on creating "memory" for claude code.
-Note: Claude code is a lazy fucking cunt and will still probably ignore this and do fuck all. 
 
 
 MCP server instructions have been updated from the original project to focus on the memory use-case.
