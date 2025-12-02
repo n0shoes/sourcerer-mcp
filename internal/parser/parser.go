@@ -1,7 +1,9 @@
 package parser
 
+//        
 import (
-	"errors"
+        "path/filepath"
+        "errors"
 	"fmt"
 	"os"
 	"path"
@@ -244,6 +246,7 @@ func (p *Parser) Chunk(filePath string) (*File, error) {
 
 // classifyFileType determines the file type based on path patterns,
 // checking global rules first, then language-specific rules
+/*
 func (p *Parser) classifyFileType(filePath string) FileType {
 	for _, rule := range globalFileTyleRules {
 		matched, _ := doublestar.PathMatch(rule.Pattern, filePath)
@@ -261,6 +264,36 @@ func (p *Parser) classifyFileType(filePath string) FileType {
 
 	return FileTypeSrc
 }
+*/
+
+// classifyFileType determines file type with language-specific rules taking priority
+// This ensures MEMORY.md and decisions.md are classified as 'memory' type
+// even if they're in docs/ or other directories
+func (p *Parser) classifyFileType(filePath string) FileType {
+	baseName := filepath.Base(filePath)
+
+	// Check language-specific rules FIRST (MEMORY.md, decisions.md have priority)
+	for _, rule := range p.spec.FileTypeRules {
+		// Try matching full path first, then basename
+		matchedPath, _ := doublestar.PathMatch(rule.Pattern, filePath)
+		matchedBase, _ := doublestar.PathMatch(rule.Pattern, baseName)
+
+		if matchedPath || matchedBase {
+			return rule.Type
+		}
+	}
+
+	// Then check global rules (test/**, docs/**, .git/**)
+	for _, rule := range globalFileTyleRules {
+		matched, _ := doublestar.PathMatch(rule.Pattern, filePath)
+		if matched {
+			return rule.Type
+		}
+	}
+
+	return FileTypeSrc
+}
+
 
 // extractChunks recursively extracts semantic chunks from an AST node.
 func (p *Parser) extractChunks(

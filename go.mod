@@ -38,4 +38,4 @@ require (
 )
 
 //Checkout the version and use the local version - change this to your own local path.
-replace github.com/philippgille/chromem-go => /Users/shaune/github/n0shoes/chromem-go
+replace github.com/philippgille/chromem-go => /Users/claudeuser/github/n0shoes/chromem-go

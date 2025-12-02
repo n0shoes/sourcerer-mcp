@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -14,8 +15,9 @@ import (
 )
 
 const (
-	minSimilarity = 0.3
-	maxResults    = 30
+	//minSimilarity = 0.3
+	minSimilarity = 0.2
+	maxResults    = 5  // Conservative limit to avoid exceeding any filtered type's count
 )
 
 type Index struct {
@@ -30,7 +32,9 @@ type Index struct {
 }
 
 func New(ctx context.Context, workspaceRoot string) (*Index, error) {
-	db, err := chromem.NewPersistentDB(".sourcerer/db", false)
+	// Create DB path relative to workspace root, not current directory
+	dbPath := filepath.Join(workspaceRoot, ".sourcerer/db")
+	db, err := chromem.NewPersistentDB(dbPath, false)
 	if err != nil {
 	    return nil, fmt.Errorf("failed to create vector db: %w", err)
 	}
@@ -100,7 +104,9 @@ func New(ctx context.Context, workspaceRoot string) (*Index, error) {
 
 func (idx *Index) ensureInitialized(ctx context.Context) error {
 	idx.initOnce.Do(func() {
-		db, err := chromem.NewPersistentDB(".sourcerer/db", false)
+		// Create DB path relative to workspace root, not current directory
+		dbPath := filepath.Join(idx.workspaceRoot, ".sourcerer/db")
+		db, err := chromem.NewPersistentDB(dbPath, false)
 		if err != nil {
 			idx.initErr = fmt.Errorf("failed to create vector db: %w", err)
 			return
@@ -219,7 +225,14 @@ func (idx *Index) Index(ctx context.Context, file *parser.File) error {
 		docs = append(docs, doc)
 	}
 
-	err = idx.collection.AddDocuments(ctx, docs, runtime.NumCPU())
+	// Use lower concurrency for Ollama to avoid overwhelming the service
+	// OpenAI can handle more concurrent requests, but local Ollama needs rate limiting
+	concurrency := 1  // Sequential processing for stability with Ollama
+	if os.Getenv("OPENAI_API_KEY") != "" {
+		concurrency = runtime.NumCPU() // OpenAI can handle more
+	}
+
+	err = idx.collection.AddDocuments(ctx, docs, concurrency)
 	if err != nil {
 		return fmt.Errorf("failed to add documents to vector db: %w", err)
 	}
@@ -264,19 +277,43 @@ func (idx *Index) Search(ctx context.Context, query string, fileTypes []string) 
 		fileTypes = []string{"src", "docs"}
 	}
 
-	// chromem-go doesn't support OR filtering, for now fetch more & filter manually
-	nResults := min(len(fileTypes)*maxResults, idx.collection.Count())
-	results, err := idx.collection.Query(ctx, query, nResults, nil, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to perform similarity search: %w", err)
+	// Query each file type separately and merge results
+	// This ensures we get results for each type even if one type has many more chunks
+	var allResults []chromem.Result
+	seenIDs := make(map[string]bool)
+
+	for _, fileType := range fileTypes {
+		where := map[string]string{"type": fileType}
+
+		// Determine how many results to request
+		// Use a conservative number to avoid exceeding any single type's count
+		nResults := min(maxResults, idx.collection.Count())
+		if nResults == 0 {
+			continue // Empty collection, skip this type
+		}
+
+		results, err := idx.collection.Query(ctx, query, nResults, where, nil)
+		if err != nil {
+			// If we requested too many results for this filtered type, try with just 1
+			// This handles cases where a type has very few documents
+			results, err = idx.collection.Query(ctx, query, 1, where, nil)
+			if err != nil {
+				// Even 1 result failed, skip this type (probably empty)
+				continue
+			}
+		}
+
+		// Merge results, avoiding duplicates
+		for _, result := range results {
+			if !seenIDs[result.ID] {
+				allResults = append(allResults, result)
+				seenIDs[result.ID] = true
+			}
+		}
 	}
 
-	allowedTypes := make(map[string]bool)
-	for _, ft := range fileTypes {
-		allowedTypes[ft] = true
-	}
-
-	return idx.formatSearchResults(ctx, results, minSimilarity, maxResults, "", allowedTypes), nil
+	// No need for type filtering since we already filtered in the query
+	return idx.formatSearchResults(ctx, allResults, minSimilarity, maxResults, "", nil), nil
 }
 
 func (idx *Index) FindSimilarChunks(ctx context.Context, chunkID string) ([]string, error) {
